@@ -15,7 +15,16 @@
       "~/*": ["./*"],
       "@/*": ["./*"]
     },
-    "types": ["@nuxt/types", "@nuxtjs/axios", "@types/node"]
+    "noUnusedLocals": true,
+    "types": [
+      "@nuxt/types",
+      "@nuxtjs/axios",
+      "@types/node",
+      "unplugin-vue2-script-setup/types"
+    ]
   },
-  "exclude": ["node_modules", ".nuxt", "dist"]
+  "exclude": ["node_modules", ".nuxt", "dist"],
+  "vueCompilerOptions": {
+    "experimentalCompatMode": 2
+  }
 }
