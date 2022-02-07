@@ -42,9 +42,11 @@ export default () => {
       room: ref(1),
       sort: ref('')
     },
+    infiniteScroll: ref(false),
     loading: ref(false),
     meta: {
-      page: ref(1)
+      page: ref(1),
+      totalPage: ref<null | number>(null)
     }
   })
 
@@ -102,8 +104,23 @@ export default () => {
           state.data.push(dataHotel)
         }
       })
+      state.meta.totalPage = responseBody.meta.pagination.total_pages
     }).finally(() => {
       state.loading = false
+    })
+  }
+
+  const loadMore = (entries: IntersectionObserverEntry[]) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        if (state.meta.page >= Number(state.meta.totalPage)) {
+          return
+        }
+
+        state.infiniteScroll = true
+        state.meta.page++
+        getHotels()
+      }
     })
   }
 
@@ -205,6 +222,7 @@ export default () => {
 
   return {
     getHotels,
+    loadMore,
     queryToStateFilter,
     queryToStateFilterDestination,
     state,

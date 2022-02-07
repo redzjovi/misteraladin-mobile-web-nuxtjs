@@ -169,7 +169,7 @@ export default defineComponent({
             </v-card-text>
           </v-card>
         </template>
-        <template v-for="hotel in hotelSearch.state.data">
+        <template v-for="(hotel, i) in hotelSearch.state.data">
           <v-card :key="hotel.code" class="mb-4">
             <v-card-text>
               <v-row>
@@ -218,6 +218,23 @@ export default defineComponent({
               </v-row>
             </v-card-text>
           </v-card>
+          <template v-if="i === hotelSearch.state.data.length - 1 && !hotelSearch.state.loading">
+            <div
+              :key="'intersect-' + i"
+              v-intersect="{
+                handler: hotelSearch.loadMore,
+                options: {
+                  threshold: [0, 0.5, 1.0]
+                }
+              }"
+            >
+            </div>
+          </template>
+        </template>
+        <template v-if="hotelSearch.state.loading">
+          <div class="text-center">
+            <v-progress-circular indeterminate></v-progress-circular>
+          </div>
         </template>
       </v-container>
     </v-main>
