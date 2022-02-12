@@ -16,6 +16,14 @@ export default {
   pages: {
     hotel: {
       form: {
+        checkIn: {
+          label: 'Check in',
+          placeholder: 'Check in',
+        },
+        checkOut: {
+          label: 'Check out',
+          placeholder: 'Check out',
+        },
         destination: {
           label: 'Destinasi',
           placeholder: 'Nginap dimana?'

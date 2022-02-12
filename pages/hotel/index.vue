@@ -2,13 +2,15 @@
 import {
   defineComponent,
   reactive,
-  ref
+  ref,
+  useContext
 } from '@nuxtjs/composition-api';
 import { Destination } from '~/composables/useDestination'
 
 export default defineComponent({
   name: 'HotelPage',
   components: {
+    DateRangePickerInput: () => import('~/components/DateRangePickerInput.vue'),
     DestinationInput: () => import('~/components/DestinationInput.vue')
   },
   nuxtI18n: {
@@ -18,8 +20,12 @@ export default defineComponent({
     }
   },
   setup() {
+    const { $dayjs } = useContext()
+
     const state = reactive({
-      destination: ref<Destination | null>(null)
+      destination: ref<Destination | null>(null),
+      checkIn: ref($dayjs().format('YYYY-MM-DD')),
+      checkOut: ref($dayjs().add(1, 'day').format('YYYY-MM-DD'))
     })
 
     return {
@@ -51,6 +57,31 @@ export default defineComponent({
                 prepend-inner-icon="mdi-map-marker-outline"
                 :label="$t('pages.hotel.form.destination.label')"
                 :placeholder="$t('pages.hotel.form.destination.placeholder')"
+              />
+              <DateRangePickerInput
+                dense
+                format="YYYY-MM-DD"
+                prepend-inner-icon="mdi-calendar"
+                readonly
+                :from-show="true"
+                :from-value.sync="state.checkIn"
+                :label="$t('pages.hotel.form.checkIn.label')"
+                :min="$dayjs().format('YYYY-MM-DD')"
+                :placeholder="$t('pages.hotel.form.checkIn.placeholder')"
+                :to-value.sync="state.checkOut"
+              />
+              <DateRangePickerInput
+                dense
+                format="YYYY-MM-DD"
+                prepend-inner-icon="mdi-calendar"
+                readonly
+                :from-show="false"
+                :from-value.sync="state.checkIn"
+                :label="$t('pages.hotel.form.checkOut.label')"
+                :min="$dayjs().format('YYYY-MM-DD')"
+                :placeholder="$t('pages.hotel.form.checkOut.placeholder')"
+                :to-show="true"
+                :to-value.sync="state.checkOut"
               />
             </v-form>
           </v-card-text>
