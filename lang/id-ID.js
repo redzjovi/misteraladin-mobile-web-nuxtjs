@@ -11,6 +11,23 @@ export default {
         subheader: 'Destinasi populer'
       },
       nearMe: 'Dekat saya'
+    },
+    roomGuestPickerInput: {
+      guest: {
+        label: 'Tamu'
+      },
+      room: {
+        label: 'Kamar'
+      },
+      submit: {
+        label: 'Selesai'
+      },
+      totalGuest: {
+        label: '{i} tamu | {i} tamu'
+      },
+      totalRoom: {
+        label: '{i} kamar | {i} kamar'
+      }
     }
   },
   pages: {
@@ -27,6 +44,9 @@ export default {
         destination: {
           label: 'Destinasi',
           placeholder: 'Nginap dimana?'
+        },
+        roomAndGuest: {
+          label: 'Kamar & tamu'
         }
       },
       title: 'Hotel'

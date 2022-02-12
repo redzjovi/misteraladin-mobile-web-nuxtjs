@@ -11,7 +11,8 @@ export default defineComponent({
   name: 'HotelPage',
   components: {
     DateRangePickerInput: () => import('~/components/DateRangePickerInput.vue'),
-    DestinationInput: () => import('~/components/DestinationInput.vue')
+    DestinationInput: () => import('~/components/DestinationInput.vue'),
+    RoomGuestPickerInput: () => import('~/components/RoomGuestPickerInput.vue')
   },
   nuxtI18n: {
     paths: {
@@ -25,7 +26,9 @@ export default defineComponent({
     const state = reactive({
       destination: ref<Destination | null>(null),
       checkIn: ref($dayjs().format('YYYY-MM-DD')),
-      checkOut: ref($dayjs().add(1, 'day').format('YYYY-MM-DD'))
+      checkOut: ref($dayjs().add(1, 'day').format('YYYY-MM-DD')),
+      room: ref(1),
+      guest: ref(2)
     })
 
     return {
@@ -82,6 +85,13 @@ export default defineComponent({
                 :placeholder="$t('pages.hotel.form.checkOut.placeholder')"
                 :to-show="true"
                 :to-value.sync="state.checkOut"
+              />
+              <RoomGuestPickerInput
+                dense
+                prepend-inner-icon="mdi-account"
+                :guest-value.sync="state.guest"
+                :label="$t('pages.hotel.form.roomAndGuest.label')"
+                :room-value.sync="state.room"
               />
             </v-form>
           </v-card-text>
