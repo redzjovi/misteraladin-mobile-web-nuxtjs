@@ -45,11 +45,25 @@ export default {
           label: 'Destination',
           placeholder: 'Staying anywhere?'
         },
+        gps: {
+          alert: 'Location not detected. Please activate Location Service then refresh your browser, or choose destination manually.'
+        },
         roomAndGuest: {
           label: 'Room & guest'
+        },
+        submit: {
+          label: 'Search'
         }
       },
       title: 'Hotel'
+    },
+    'hotel-search': {
+      appBar: {
+        totalNight: '{i} night | {i} nights'
+      },
+      changeSearch: {
+        title: 'Change search'
+      }
     }
   }
 }

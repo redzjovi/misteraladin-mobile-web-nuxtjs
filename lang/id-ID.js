@@ -45,11 +45,25 @@ export default {
           label: 'Destinasi',
           placeholder: 'Nginap dimana?'
         },
+        gps: {
+          alert: 'Lokasi tidak terdeteksi. Silakan aktifkan Layanan Lokasi kemudian segarkan browser Anda, atau pilih tujuan secara manual.'
+        },
         roomAndGuest: {
           label: 'Kamar & tamu'
+        },
+        submit: {
+          label: 'Cari'
         }
       },
       title: 'Hotel'
+    },
+    'hotel-search': {
+      appBar: {
+        totalNight: '{i} malam | {i} malam'
+      },
+      changeSearch: {
+        title: 'Ubah pencarian'
+      }
     }
   }
 }

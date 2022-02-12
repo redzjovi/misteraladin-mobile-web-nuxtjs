@@ -1,11 +1,11 @@
 <script lang="ts">
 import {
   defineComponent,
-  reactive,
-  ref,
-  useContext
-} from '@nuxtjs/composition-api';
-import { Destination } from '~/composables/useDestination'
+  useContext,
+  useRouter
+} from '@nuxtjs/composition-api'
+import useDestination from '~/composables/useDestination'
+import useHotelSearch from '~/composables/useHotelSearch'
 
 export default defineComponent({
   name: 'HotelPage',
@@ -21,18 +21,39 @@ export default defineComponent({
     }
   },
   setup() {
-    const { $dayjs } = useContext()
+    const {
+      app,
+      i18n
+    } = useContext()
+    const destination = useDestination();
+    const hotelSearch = useHotelSearch()
+    const $router = useRouter()
 
-    const state = reactive({
-      destination: ref<Destination | null>(null),
-      checkIn: ref($dayjs().format('YYYY-MM-DD')),
-      checkOut: ref($dayjs().add(1, 'day').format('YYYY-MM-DD')),
-      room: ref(1),
-      guest: ref(2)
-    })
+    const submit = async () => {
+      let validate = false
+
+      if (hotelSearch.state.filter.destination) {
+        validate = true
+      } else if (!hotelSearch.state.filter.destination) {
+        await destination.getCurrentPosition().then(d => {
+          hotelSearch.state.filter.destination = d
+          validate = true
+        }).catch(() => {
+          window.alert(i18n.t('pages.hotel.form.gps.alert'))
+        })
+      }
+
+      if (validate) {
+        $router.push(app.localePath({
+          name: 'hotel-search',
+          query: hotelSearch.stateToQuery()
+        }))
+      }
+    }
 
     return {
-      state
+      hotelSearch,
+      submit
     }
   }
 })
@@ -54,10 +75,11 @@ export default defineComponent({
           <v-card-text>
             <v-form>
               <DestinationInput
-                v-model="state.destination"
+                v-model="hotelSearch.state.filter.destination"
                 dense
                 persistent-placeholder
                 prepend-inner-icon="mdi-map-marker-outline"
+                required
                 :label="$t('pages.hotel.form.destination.label')"
                 :placeholder="$t('pages.hotel.form.destination.placeholder')"
               />
@@ -67,11 +89,11 @@ export default defineComponent({
                 prepend-inner-icon="mdi-calendar"
                 readonly
                 :from-show="true"
-                :from-value.sync="state.checkIn"
+                :from-value.sync="hotelSearch.state.filter.checkIn"
                 :label="$t('pages.hotel.form.checkIn.label')"
                 :min="$dayjs().format('YYYY-MM-DD')"
                 :placeholder="$t('pages.hotel.form.checkIn.placeholder')"
-                :to-value.sync="state.checkOut"
+                :to-value.sync="hotelSearch.state.filter.checkOut"
               />
               <DateRangePickerInput
                 dense
@@ -79,20 +101,28 @@ export default defineComponent({
                 prepend-inner-icon="mdi-calendar"
                 readonly
                 :from-show="false"
-                :from-value.sync="state.checkIn"
+                :from-value.sync="hotelSearch.state.filter.checkIn"
                 :label="$t('pages.hotel.form.checkOut.label')"
                 :min="$dayjs().format('YYYY-MM-DD')"
                 :placeholder="$t('pages.hotel.form.checkOut.placeholder')"
                 :to-show="true"
-                :to-value.sync="state.checkOut"
+                :to-value.sync="hotelSearch.state.filter.checkOut"
               />
               <RoomGuestPickerInput
                 dense
                 prepend-inner-icon="mdi-account"
-                :guest-value.sync="state.guest"
+                :guest-value.sync="hotelSearch.state.filter.guest"
                 :label="$t('pages.hotel.form.roomAndGuest.label')"
-                :room-value.sync="state.room"
+                :room-value.sync="hotelSearch.state.filter.room"
               />
+              <v-btn
+                block
+                color="primary"
+                dense
+                @click="submit"
+              >
+                {{ $t('pages.hotel.form.submit.label') }}
+              </v-btn>
             </v-form>
           </v-card-text>
         </v-card>
