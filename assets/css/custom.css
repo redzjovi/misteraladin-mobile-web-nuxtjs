@@ -1,6 +1,21 @@
 .bg-contain {
   background-size: contain;
 }
+.bottom-4 {
+  bottom: 1rem;
+}
+.fixed {
+  position: fixed;
+}
+.left-0 {
+  left: 0;
+}
+.right-0 {
+  right: 0;
+}
+.text-center {
+  text-align: center;
+}
 .text-clip {
   text-overflow: clip;
 }

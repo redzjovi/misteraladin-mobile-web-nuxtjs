@@ -29,10 +29,13 @@ export default defineComponent({
     const $router = useRouter()
 
     const state = reactive({
-      changeSearchPopupShow: ref(false)
+      changeSearchPopupShow: ref(false),
+      sortPopupShow: ref(false)
     })
 
     const changeSearchSubmit = () => {
+      changeSearch.stateFilterSortReset()
+
       $router.push(app.localePath({
         name: 'hotel-search',
         query: changeSearch.stateToQuery()
@@ -41,6 +44,21 @@ export default defineComponent({
       setTimeout(() => {
         hotelSearch.queryToStateFilter()
         state.changeSearchPopupShow = false
+
+        hotelSearch.stateDataReset()
+        hotelSearch.getHotels()
+      }, 100)
+    }
+
+    const sortSubmit = () => {
+      $router.push(app.localePath({
+        name: 'hotel-search',
+        query: changeSearch.stateToQuery()
+      }))
+
+      setTimeout(() => {
+        hotelSearch.queryToStateFilter()
+        state.sortPopupShow = false
 
         hotelSearch.stateDataReset()
         hotelSearch.getHotels()
@@ -57,6 +75,7 @@ export default defineComponent({
       changeSearch,
       changeSearchSubmit,
       hotelSearch,
+      sortSubmit,
       state
     }
   }
@@ -236,6 +255,55 @@ export default defineComponent({
             <v-progress-circular indeterminate></v-progress-circular>
           </div>
         </template>
+        <div class="bottom-4 fixed left-0 right-0 text-center">
+          <v-btn-toggle rounded>
+            <v-btn
+              :disabled="hotelSearch.state.data.length === 0 && hotelSearch.state.loading"
+              @click="state.sortPopupShow = true"
+            >
+              <v-icon>mdi-sort-reverse-variant</v-icon>
+              {{ $t('pages.hotel-search.sort.label') }}
+            </v-btn>
+          </v-btn-toggle>
+          <v-bottom-sheet v-model="state.sortPopupShow">
+            <v-card>
+              <v-card-title class="pa-0">
+                <v-app-bar dense>
+                  <v-app-bar-nav-icon>
+                    <v-btn icon @click="state.sortPopupShow = false">
+                      <v-icon>mdi-close</v-icon>
+                    </v-btn>
+                  </v-app-bar-nav-icon>
+                  <v-app-bar-title>{{ $t('pages.hotel-search.sort.title') }}</v-app-bar-title>
+                </v-app-bar>
+              </v-card-title>
+              <v-card-text class="pa-0">
+                <v-list class="pa-0">
+                  <v-list-item-group
+                    v-model="changeSearch.state.filter.sort"
+                    mandatory
+                    @change="sortSubmit"
+                  >
+                    <template v-for="(o, i) in hotelSearch.state.sort.options">
+                      <v-list-item :key="i" :value="o.id">
+                        <template #default>
+                          <v-list-item-content>
+                            <v-list-item-title v-text="o.name"></v-list-item-title>
+                          </v-list-item-content>
+                          <v-list-item-action>
+                            <v-radio-group :value="changeSearch.state.filter.sort">
+                              <v-radio :value="o.id"></v-radio>
+                            </v-radio-group>
+                          </v-list-item-action>
+                        </template>
+                      </v-list-item>
+                    </template>
+                  </v-list-item-group>
+                </v-list>
+              </v-card-text>
+            </v-card>
+          </v-bottom-sheet>
+        </div>
       </v-container>
     </v-main>
   </div>

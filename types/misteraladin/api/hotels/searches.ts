@@ -22,7 +22,15 @@ export interface RequestBody {
     room_quantity: number;
   };
   page: number;
-  sort: string;
+  sort: RequestBodySort;
+}
+
+export enum RequestBodySort {
+  Default = '',
+  PriceHighest = '-price',
+  PriceLowest = 'price',
+  StarRatingHighest = '-star_rating',
+  StarRatingLowest = 'star_rating'
 }
 
 export interface ResponseBody {

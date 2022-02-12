@@ -13,14 +13,24 @@ import useHotel, {
 import useJson from '~/composables/useJson'
 import {
   RequestBody as HotelSearchRequestBody,
+  RequestBodySort as HotelSearchRequestBodySort,
   ResponseBody as HotelSearchResponseBody
 } from '~/types/misteraladin/api/hotels/searches'
+
+export enum Sort {
+  Default = '',
+  PriceHighest = '-price',
+  PriceLowest = 'price',
+  StarRatingHighest = '-starRating',
+  StarRatingLowest = 'starRating'
+}
 
 export default () => {
   const {
     $axios,
     $config,
-    $dayjs
+    $dayjs,
+    i18n
   } = useContext()
   const hotel = useHotel()
   const json = useJson()
@@ -40,13 +50,22 @@ export default () => {
       latitude: ref<null | number>(null),
       longitude: ref<null | number>(null),
       room: ref(1),
-      sort: ref('')
+      sort: ref(Sort.Default)
     },
     infiniteScroll: ref(false),
     loading: ref(false),
     meta: {
       page: ref(1),
       totalPage: ref<null | number>(null)
+    },
+    sort: {
+      options: [
+        { id: Sort.Default, name: i18n.t('pages.hotel-search.sort.options.default.label') },
+        { id: Sort.PriceLowest, name: i18n.t('pages.hotel-search.sort.options.priceLowest.label') },
+        { id: Sort.PriceHighest, name: i18n.t('pages.hotel-search.sort.options.priceHighest.label') },
+        { id: Sort.StarRatingLowest, name: i18n.t('pages.hotel-search.sort.options.starRatingLowest.label') },
+        { id: Sort.StarRatingHighest, name: i18n.t('pages.hotel-search.sort.options.starRatingHighest.label') }
+      ]
     }
   })
 
@@ -144,9 +163,7 @@ export default () => {
     if ($route.value.query.room) {
       state.filter.room = Number($route.value.query.room)
     }
-    if ($route.value.query.sort) {
-      state.filter.sort = String($route.value.query.sort)
-    }
+    state.filter.sort = $route.value.query.sort ? String($route.value.query.sort) as Sort : Sort.Default
   }
 
   const queryToStateFilterDestination = () => {
@@ -176,6 +193,26 @@ export default () => {
     state.meta.page = 1
   }
 
+  const stateFilterSortReset = () => {
+    state.filter.sort = Sort.Default
+  }
+
+  const stateFilterSortToRequestBodySort = (sort: Sort) => {
+    let newSort = ''
+    if (sort === Sort.Default) {
+      newSort = HotelSearchRequestBodySort.Default
+    } else if (sort === Sort.PriceHighest) {
+      newSort = HotelSearchRequestBodySort.PriceHighest
+    } else if (sort === Sort.PriceLowest) {
+      newSort = HotelSearchRequestBodySort.PriceLowest
+    } else if (sort === Sort.StarRatingHighest) {
+      newSort = HotelSearchRequestBodySort.StarRatingHighest
+    } else if (sort === Sort.StarRatingLowest) {
+      newSort = HotelSearchRequestBodySort.StarRatingLowest
+    }
+    return newSort
+  }
+
   const stateToHotelSearchRequestBody = () => {
     const requestBody: HotelSearchRequestBody = {
       filter: {
@@ -190,7 +227,7 @@ export default () => {
         room_quantity: state.filter.room
       },
       page: state.meta.page,
-      sort: state.filter.sort
+      sort: stateFilterSortToRequestBodySort(state.filter.sort) as HotelSearchRequestBodySort
     }
 
     return json.pickBy(requestBody)
@@ -229,6 +266,7 @@ export default () => {
     stateDataReset,
     stateFilterDestinationName,
     stateFilterNight,
+    stateFilterSortReset,
     stateToQuery
   }
 }

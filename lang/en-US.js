@@ -66,6 +66,27 @@ export default {
       },
       freeBreakfast: 'Free breakfast',
       freeCancellation: 'Free cancellation',
+      sort: {
+        label: 'Sort',
+        options: {
+          default: {
+            label: 'Recommended'
+          },
+          priceHighest: {
+            label: 'Price (highest first)'
+          },
+          priceLowest: {
+            label: 'Price (lowest first)'
+          },
+          starRatingHighest: {
+            label: 'Hotel star (highest first)'
+          },
+          starRatingLowest: {
+            label: 'Hotel star (lowest first)'
+          }
+        },
+        title: 'Sort by'
+      },
       totalDistance: {
         label: '{i} from your search location'
       }

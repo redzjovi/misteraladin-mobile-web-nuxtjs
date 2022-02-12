@@ -66,6 +66,27 @@ export default {
       },
       freeBreakfast: 'Sarapan gratis',
       freeCancellation: 'Pembatalan gratis',
+      sort: {
+        label: 'Urutkan',
+        options: {
+          default: {
+            label: 'Rekomendasi'
+          },
+          priceHighest: {
+            label: 'Harga (termahal lebih dulu)'
+          },
+          priceLowest: {
+            label: 'Harga (termurah lebih dulu)'
+          },
+          starRatingHighest: {
+            label: 'Bintang (tertinggi lebih dulu)'
+          },
+          starRatingLowest: {
+            label: 'Bintang (terendah lebih dulu)'
+          }
+        },
+        title: 'Urutkan'
+      },
       totalDistance: {
         label: '{i} dari lokasi pencarian Anda'
       }
