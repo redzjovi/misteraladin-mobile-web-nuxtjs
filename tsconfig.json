@@ -20,6 +20,7 @@
       "@nuxt/types",
       "@nuxtjs/axios",
       "@nuxtjs/i18n",
+      "@types/lodash",
       "@types/node",
       "@types/react-dom",
       "unplugin-vue2-script-setup/types"

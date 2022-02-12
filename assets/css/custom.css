@@ -1,3 +1,9 @@
 .bg-contain {
   background-size: contain;
 }
+.text-clip {
+  text-overflow: clip;
+}
+.whitespace-normal {
+  white-space: normal !important;
+}
