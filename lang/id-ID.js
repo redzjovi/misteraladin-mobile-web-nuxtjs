@@ -64,6 +64,40 @@ export default {
       changeSearch: {
         title: 'Ubah pencarian'
       },
+      filter: {
+        apply: {
+          label: 'Terapkan'
+        },
+        area: {
+          label: 'Area'
+        },
+        facilities: {
+          label: 'Fasilitas'
+        },
+        hotelRating: {
+          label: 'Hotel rating'
+        },
+        hotelStar: {
+          label: 'Hotel star'
+        },
+        label: 'Saring',
+        priceRange: {
+          label: 'Rentang harga'
+        },
+        propertyType: {
+          label: 'Tipe properti'
+        },
+        reset: {
+          label: 'Atur ulang'
+        },
+        save: {
+          label: 'Simpan'
+        },
+        showAll: {
+          label: 'Selengkapnya'
+        },
+        title: 'Saring'
+      },
       freeBreakfast: 'Sarapan gratis',
       freeCancellation: 'Pembatalan gratis',
       sort: {
@@ -79,10 +113,10 @@ export default {
             label: 'Harga (termurah lebih dulu)'
           },
           starRatingHighest: {
-            label: 'Bintang (tertinggi lebih dulu)'
+            label: 'Bintang hotel (tertinggi lebih dulu)'
           },
           starRatingLowest: {
-            label: 'Bintang (terendah lebih dulu)'
+            label: 'Bintang hotel (terendah lebih dulu)'
           }
         },
         title: 'Urutkan'

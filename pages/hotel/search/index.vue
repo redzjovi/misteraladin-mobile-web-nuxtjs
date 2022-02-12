@@ -30,10 +30,16 @@ export default defineComponent({
 
     const state = reactive({
       changeSearchPopupShow: ref(false),
+      filterAreaPopupShow: ref(false),
+      filterFacilityPopupShow: ref(false),
+      filterPopupShow: ref(false),
+      filterReviewRatingPopupShow: ref(false),
+      filterTypePopupShow: ref(false),
       sortPopupShow: ref(false)
     })
 
     const changeSearchSubmit = () => {
+      changeSearch.stateFilterFilterReset()
       changeSearch.stateFilterSortReset()
 
       $router.push(app.localePath({
@@ -42,8 +48,28 @@ export default defineComponent({
       }))
 
       setTimeout(() => {
+        changeSearch.queryToStateFilter()
+        changeSearch.getIncluded()
+
         hotelSearch.queryToStateFilter()
         state.changeSearchPopupShow = false
+
+        hotelSearch.stateDataReset()
+        hotelSearch.getHotels()
+      }, 100)
+    }
+
+    const filterSubmit = () => {
+      $router.push(app.localePath({
+        name: 'hotel-search',
+        query: changeSearch.stateToQuery()
+      }))
+
+      setTimeout(() => {
+        changeSearch.queryToStateFilter()
+
+        hotelSearch.queryToStateFilter()
+        state.filterPopupShow = false
 
         hotelSearch.stateDataReset()
         hotelSearch.getHotels()
@@ -57,6 +83,8 @@ export default defineComponent({
       }))
 
       setTimeout(() => {
+        changeSearch.queryToStateFilter()
+
         hotelSearch.queryToStateFilter()
         state.sortPopupShow = false
 
@@ -67,6 +95,8 @@ export default defineComponent({
 
     onMounted(() => {
       changeSearch.queryToStateFilter()
+      changeSearch.getIncluded()
+
       hotelSearch.queryToStateFilter()
       hotelSearch.getHotels()
     })
@@ -74,6 +104,7 @@ export default defineComponent({
     return {
       changeSearch,
       changeSearchSubmit,
+      filterSubmit,
       hotelSearch,
       sortSubmit,
       state
@@ -264,6 +295,13 @@ export default defineComponent({
               <v-icon>mdi-sort-reverse-variant</v-icon>
               {{ $t('pages.hotel-search.sort.label') }}
             </v-btn>
+            <v-btn
+              :disabled="hotelSearch.state.data.length === 0 && hotelSearch.state.loading"
+              @click="state.filterPopupShow = true"
+            >
+              <v-icon>mdi-filter</v-icon>
+              {{ $t('pages.hotel-search.filter.label') }}
+            </v-btn>
           </v-btn-toggle>
           <v-bottom-sheet v-model="state.sortPopupShow">
             <v-card>
@@ -301,6 +339,394 @@ export default defineComponent({
                   </v-list-item-group>
                 </v-list>
               </v-card-text>
+            </v-card>
+          </v-bottom-sheet>
+          <v-bottom-sheet v-model="state.filterPopupShow" scrollable>
+            <v-card>
+              <v-card-title class="pa-0">
+                <v-app-bar dense>
+                  <v-app-bar-nav-icon>
+                    <v-btn icon @click="state.filterPopupShow = false">
+                      <v-icon>mdi-close</v-icon>
+                    </v-btn>
+                  </v-app-bar-nav-icon>
+                  <v-app-bar-title>{{ $t('pages.hotel-search.filter.title') }}</v-app-bar-title>
+                  <v-spacer />
+                  <v-btn color="primary" text @click="changeSearch.stateFilterFilterReset">
+                    {{ $t('pages.hotel-search.filter.reset.label') }}
+                  </v-btn>
+                </v-app-bar>
+              </v-card-title>
+              <v-card-text class="pa-0">
+                <v-list dense>
+                  <v-subheader>{{ $t('pages.hotel-search.filter.priceRange.label') }}</v-subheader>
+                  <v-list-item>
+                    <v-list-item-content>
+                      <v-row no-gutters>
+                        <v-col>
+                          <v-text-field
+                            v-model="changeSearch.state.filter.minPrice"
+                            dense
+                            hide-details
+                            outlined
+                            type="number"
+                          />
+                        </v-col>
+                        <v-col align-self="center">
+                          <v-divider></v-divider>
+                        </v-col>
+                        <v-col>
+                          <v-text-field
+                            v-model="changeSearch.state.filter.maxPrice"
+                            dense
+                            hide-details
+                            outlined
+                            type="number"
+                          />
+                        </v-col>
+                      </v-row>
+                      <v-row v-if="false">
+                        <v-col>
+                          <v-range-slider
+                            v-model="changeSearch.state.filter.priceRange"
+                            :max="changeSearch.state.included.priceRange.data.to"
+                            :min="changeSearch.state.included.priceRange.data.from"
+                            :step="50000"
+                          />
+                        </v-col>
+                      </v-row>
+                    </v-list-item-content>
+                  </v-list-item>
+                </v-list>
+                <v-list dense>
+                  <v-subheader>{{ $t('pages.hotel-search.filter.hotelStar.label') }}</v-subheader>
+                  <v-list-item>
+                    <v-list-item-content>
+                      <v-btn-toggle v-model="changeSearch.state.filter.starRatings" multiple>
+                        <v-row>
+                          <v-col
+                            v-for="starRating in changeSearch.state.included.starRating.data"
+                            :key="starRating"
+                            cols="4"
+                          >
+                            <v-btn block outlined>
+                              <v-icon color="warning" small>mdi-star</v-icon>
+                              {{ starRating }}
+                            </v-btn>
+                          </v-col>
+                        </v-row>
+                      </v-btn-toggle>
+                    </v-list-item-content>
+                  </v-list-item>
+                </v-list>
+                <v-list dense>
+                  <v-subheader>{{ $t('pages.hotel-search.filter.propertyType.label') }}</v-subheader>
+                  <v-list-item-group v-model="changeSearch.state.filter.types" multiple>
+                    <v-list-item
+                      v-for="(type, i) in changeSearch.stateIncludeTypeDataActive.value"
+                      :key="i"
+                      :value="type.code"
+                    >
+                      <template #default="{ active }">
+                        <v-list-item-content>
+                          <v-list-item-title v-text="type.name"></v-list-item-title>
+                        </v-list-item-content>
+                        <v-list-item-action>
+                          <v-checkbox :input-value="active"></v-checkbox>
+                        </v-list-item-action>
+                      </template>
+                    </v-list-item>
+                  </v-list-item-group>
+                  <v-list-item>
+                    <v-list-item-content>
+                      <v-list-item-title>
+                        <v-btn
+                          color="primary"
+                          text
+                          x-small
+                          @click="state.filterTypePopupShow = true"
+                        >
+                          {{ $t('pages.hotel-search.filter.showAll.label') }}
+                        </v-btn>
+                      </v-list-item-title>
+                    </v-list-item-content>
+                  </v-list-item>
+                </v-list>
+                <v-bottom-sheet v-model="state.filterTypePopupShow" scrollable>
+                  <v-card>
+                    <v-card-title class="pa-0">
+                      <v-app-bar dense>
+                        <v-app-bar-nav-icon>
+                          <v-btn icon @click="state.filterTypePopupShow = false">
+                            <v-icon>mdi-close</v-icon>
+                          </v-btn>
+                        </v-app-bar-nav-icon>
+                        <v-app-bar-title>{{ $t('pages.hotel-search.filter.propertyType.label') }}</v-app-bar-title>
+                      </v-app-bar>
+                    </v-card-title>
+                    <v-card-text class="pa-0">
+                      <v-list dense>
+                        <v-list-item-group v-model="changeSearch.state.filter.types" multiple>
+                          <v-list-item
+                            v-for="(type) in changeSearch.state.included.type.data"
+                            :key="type.code"
+                            :value="type.code"
+                          >
+                            <template #default="{ active }">
+                              <v-list-item-content>
+                                <v-list-item-title v-text="type.name"></v-list-item-title>
+                              </v-list-item-content>
+                              <v-list-item-action>
+                                <v-checkbox :input-value="active"></v-checkbox>
+                              </v-list-item-action>
+                            </template>
+                          </v-list-item>
+                        </v-list-item-group>
+                      </v-list>
+                    </v-card-text>
+                    <v-card-actions>
+                      <v-btn block color="primary" @click="state.filterTypePopupShow = false">
+                        {{ $t('pages.hotel-search.filter.save.label') }}
+                      </v-btn>
+                    </v-card-actions>
+                  </v-card>
+                </v-bottom-sheet>
+                <v-list dense>
+                  <v-subheader>{{ $t('pages.hotel-search.filter.facilities.label') }}</v-subheader>
+                  <v-list-item-group v-model="changeSearch.state.filter.facilityCodes" multiple>
+                    <v-list-item
+                      v-for="(facility) in changeSearch.stateIncludeFacilityDataActive.value"
+                      :key="facility.code"
+                      :value="facility.code"
+                    >
+                      <template #default="{ active }">
+                        <v-list-item-content>
+                          <v-list-item-title v-text="facility.name"></v-list-item-title>
+                        </v-list-item-content>
+                        <v-list-item-action>
+                          <v-checkbox :input-value="active"></v-checkbox>
+                        </v-list-item-action>
+                      </template>
+                    </v-list-item>
+                  </v-list-item-group>
+                  <v-list-item>
+                    <v-list-item-content>
+                      <v-list-item-title>
+                        <v-btn
+                          color="primary"
+                          text
+                          x-small
+                          @click="state.filterFacilityPopupShow = true"
+                        >
+                          {{ $t('pages.hotel-search.filter.showAll.label') }}
+                        </v-btn>
+                      </v-list-item-title>
+                    </v-list-item-content>
+                  </v-list-item>
+                </v-list>
+                <v-bottom-sheet v-model="state.filterFacilityPopupShow" scrollable>
+                  <v-card>
+                    <v-card-title class="pa-0">
+                      <v-app-bar dense>
+                        <v-app-bar-nav-icon>
+                          <v-btn icon @click="state.filterFacilityPopupShow = false">
+                            <v-icon>mdi-close</v-icon>
+                          </v-btn>
+                        </v-app-bar-nav-icon>
+                        <v-app-bar-title>{{ $t('pages.hotel-search.filter.facilities.label') }}</v-app-bar-title>
+                      </v-app-bar>
+                    </v-card-title>
+                    <v-card-text class="pa-0">
+                      <v-list dense>
+                        <v-list-item-group
+                          v-model="changeSearch.state.filter.facilityCodes"
+                          multiple
+                        >
+                          <v-list-item
+                            v-for="(facility, i) in changeSearch.state.included.facility.data"
+                            :key="i"
+                            :value="facility.code"
+                          >
+                            <template #default="{ active }">
+                              <v-list-item-content>
+                                <v-list-item-title v-text="facility.name"></v-list-item-title>
+                              </v-list-item-content>
+                              <v-list-item-action>
+                                <v-checkbox :input-value="active"></v-checkbox>
+                              </v-list-item-action>
+                            </template>
+                          </v-list-item>
+                        </v-list-item-group>
+                      </v-list>
+                    </v-card-text>
+                    <v-card-actions>
+                      <v-btn
+                        block
+                        color="primary"
+                        @click="state.filterFacilityPopupShow = false"
+                      >
+                        {{ $t('pages.hotel-search.filter.save.label') }}
+                      </v-btn>
+                    </v-card-actions>
+                  </v-card>
+                </v-bottom-sheet>
+                <v-list dense>
+                  <v-subheader>{{ $t('pages.hotel-search.filter.area.label') }}</v-subheader>
+                  <v-list-item-group v-model="changeSearch.state.filter.areaCodes" multiple>
+                    <v-list-item
+                      v-for="(area) in changeSearch.stateIncludeAreaDataActive.value"
+                      :key="area.code"
+                      :value="area.code"
+                    >
+                      <template #default="{ active }">
+                        <v-list-item-content>
+                          <v-list-item-title v-text="area.name"></v-list-item-title>
+                        </v-list-item-content>
+                        <v-list-item-action>
+                          <v-checkbox :input-value="active"></v-checkbox>
+                        </v-list-item-action>
+                      </template>
+                    </v-list-item>
+                  </v-list-item-group>
+                  <v-list-item>
+                    <v-list-item-content>
+                      <v-list-item-title>
+                        <v-btn
+                          color="primary"
+                          text
+                          x-small
+                          @click="state.filterAreaPopupShow = true"
+                        >
+                          {{ $t('pages.hotel-search.filter.showAll.label') }}
+                        </v-btn>
+                      </v-list-item-title>
+                    </v-list-item-content>
+                  </v-list-item>
+                </v-list>
+                <v-bottom-sheet v-model="state.filterAreaPopupShow" scrollable>
+                  <v-card>
+                    <v-card-title class="pa-0">
+                      <v-app-bar dense>
+                        <v-app-bar-nav-icon>
+                          <v-btn icon @click="state.filterAreaPopupShow = false">
+                            <v-icon>mdi-close</v-icon>
+                          </v-btn>
+                        </v-app-bar-nav-icon>
+                        <v-app-bar-title>{{ $t('pages.hotel-search.filter.area.label') }}</v-app-bar-title>
+                      </v-app-bar>
+                    </v-card-title>
+                    <v-card-text class="pa-0">
+                      <v-list dense>
+                        <v-list-item-group v-model="changeSearch.state.filter.areaCodes" multiple>
+                          <v-list-item
+                            v-for="(area, i) in changeSearch.state.included.area.data"
+                            :key="i"
+                            :value="area.code"
+                          >
+                            <template #default="{ active }">
+                              <v-list-item-content>
+                                <v-list-item-title v-text="area.name"></v-list-item-title>
+                              </v-list-item-content>
+                              <v-list-item-action>
+                                <v-checkbox :input-value="active"></v-checkbox>
+                              </v-list-item-action>
+                            </template>
+                          </v-list-item>
+                        </v-list-item-group>
+                      </v-list>
+                    </v-card-text>
+                    <v-card-actions>
+                      <v-btn block color="primary" @click="state.filterAreaPopupShow = false">
+                        {{ $t('pages.hotel-search.filter.save.label') }}
+                      </v-btn>
+                    </v-card-actions>
+                  </v-card>
+                </v-bottom-sheet>
+                <v-list dense>
+                  <v-subheader>{{ $t('pages.hotel-search.filter.hotelRating.label') }}</v-subheader>
+                  <v-list-item-group v-model="changeSearch.state.filter.reviewRatings" multiple>
+                    <v-list-item
+                      v-for="(reviewRating) in changeSearch.stateIncludeReviewRatingDataActive.value"
+                      :key="reviewRating.code"
+                      :value="reviewRating.code"
+                    >
+                      <template #default="{ active }">
+                        <v-list-item-content>
+                          <v-list-item-title v-text="reviewRating.name"></v-list-item-title>
+                        </v-list-item-content>
+                        <v-list-item-action>
+                          <v-checkbox :input-value="active"></v-checkbox>
+                        </v-list-item-action>
+                      </template>
+                    </v-list-item>
+                  </v-list-item-group>
+                  <v-list-item>
+                    <v-list-item-content>
+                      <v-list-item-title>
+                        <v-btn
+                          color="primary"
+                          text
+                          x-small
+                          @click="state.filterReviewRatingPopupShow = true"
+                        >
+                          {{ $t('pages.hotel-search.filter.showAll.label') }}
+                        </v-btn>
+                      </v-list-item-title>
+                    </v-list-item-content>
+                  </v-list-item>
+                </v-list>
+                <v-bottom-sheet v-model="state.filterReviewRatingPopupShow" scrollable>
+                  <v-card>
+                    <v-card-title class="pa-0">
+                      <v-app-bar dense>
+                        <v-app-bar-nav-icon>
+                          <v-btn icon @click="state.filterReviewRatingPopupShow = false">
+                            <v-icon>mdi-close</v-icon>
+                          </v-btn>
+                        </v-app-bar-nav-icon>
+                        <v-app-bar-title>{{ $t('pages.hotel-search.filter.hotelRating.label') }}</v-app-bar-title>
+                      </v-app-bar>
+                    </v-card-title>
+                    <v-card-text class="pa-0">
+                      <v-list dense>
+                        <v-list-item-group
+                          v-model="changeSearch.state.filter.reviewRatings"
+                          multiple
+                        >
+                          <v-list-item
+                            v-for="(reviewRating, i) in changeSearch.state.included.reviewRating.data"
+                            :key="i"
+                            :value="reviewRating.code"
+                          >
+                            <template #default="{ active }">
+                              <v-list-item-content>
+                                <v-list-item-title v-text="reviewRating.name"></v-list-item-title>
+                              </v-list-item-content>
+                              <v-list-item-action>
+                                <v-checkbox :input-value="active"></v-checkbox>
+                              </v-list-item-action>
+                            </template>
+                          </v-list-item>
+                        </v-list-item-group>
+                      </v-list>
+                    </v-card-text>
+                    <v-card-actions>
+                      <v-btn
+                        block
+                        color="primary"
+                        @click="state.filterReviewRatingPopupShow = false"
+                      >
+                        {{ $t('pages.hotel-search.filter.save.label') }}
+                      </v-btn>
+                    </v-card-actions>
+                  </v-card>
+                </v-bottom-sheet>
+              </v-card-text>
+              <v-card-actions>
+                <v-btn block color="primary" @click="filterSubmit">
+                  {{ $t('pages.hotel-search.filter.apply.label') }}
+                </v-btn>
+              </v-card-actions>
             </v-card>
           </v-bottom-sheet>
         </div>

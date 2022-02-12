@@ -64,6 +64,40 @@ export default {
       changeSearch: {
         title: 'Change search'
       },
+      filter: {
+        apply: {
+          label: 'Apply'
+        },
+        area: {
+          label: 'Area'
+        },
+        facilities: {
+          label: 'Facilities'
+        },
+        hotelRating: {
+          label: 'Hotel rating'
+        },
+        hotelStar: {
+          label: 'Hotel star'
+        },
+        label: 'Filter',
+        priceRange: {
+          label: 'Price range'
+        },
+        propertyType: {
+          label: 'Property type'
+        },
+        reset: {
+          label: 'Reset'
+        },
+        save: {
+          label: 'Save'
+        },
+        showAll: {
+          label: 'Show all'
+        },
+        title: 'Filter'
+      },
       freeBreakfast: 'Free breakfast',
       freeCancellation: 'Free cancellation',
       sort: {

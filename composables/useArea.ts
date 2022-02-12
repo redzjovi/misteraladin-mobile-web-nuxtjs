@@ -1,4 +1,5 @@
 import { Area as HotelArea } from '~/types/misteraladin/api/hotels/areas'
+import { OptionExact as HotelSearchFilterOptionExact } from '~/types/misteraladin/api/hotels/searches/filters'
 
 export interface Area {
   code: string;
@@ -13,7 +14,15 @@ export default () => {
     }
   }
 
+  const hotelSearchFilterOptionExactToArea = (o: HotelSearchFilterOptionExact): Area => {
+    return {
+      code: String(o.value),
+      name: o.label
+    }
+  }
+
   return {
-    hotelAreaToArea
+    hotelAreaToArea,
+    hotelSearchFilterOptionExactToArea
   }
 }

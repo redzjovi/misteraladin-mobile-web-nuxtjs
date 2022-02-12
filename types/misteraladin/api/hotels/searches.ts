@@ -16,10 +16,21 @@ export interface RequestBody {
     coordinate: string;
     coordinate_radius?: null | number;
     country_id: number[];
+    facility: number[];
     hotel_id: number[];
     night: number;
     occupancy: number;
+    price: null | {
+      from: null | number,
+      to: null | number
+    },
+    review: {
+      from: null | number,
+      to: null | number
+    }[],
     room_quantity: number;
+    star_rating: number[];
+    type_id: number[];
   };
   page: number;
   sort: RequestBodySort;
