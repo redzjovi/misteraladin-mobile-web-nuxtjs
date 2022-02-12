@@ -19,10 +19,13 @@
     "types": [
       "@nuxt/types",
       "@nuxtjs/axios",
+      "@nuxtjs/dayjs",
       "@nuxtjs/i18n",
       "@types/lodash",
       "@types/node",
       "@types/react-dom",
+      "dayjs/plugin/timezone",
+      "dayjs/plugin/utc",
       "unplugin-vue2-script-setup/types"
     ]
   },
