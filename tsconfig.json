@@ -21,6 +21,7 @@
       "@nuxtjs/axios",
       "@nuxtjs/i18n",
       "@types/node",
+      "@types/react-dom",
       "unplugin-vue2-script-setup/types"
     ]
   },
