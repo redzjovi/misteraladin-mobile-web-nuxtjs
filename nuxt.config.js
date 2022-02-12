@@ -43,6 +43,7 @@ export default {
     '@nuxtjs/i18n',
     // https://go.nuxtjs.dev/pwa
     '@nuxtjs/pwa',
+    'portal-vue/nuxt'
   ],
 
   // Axios module configuration: https://go.nuxtjs.dev/config-axios
