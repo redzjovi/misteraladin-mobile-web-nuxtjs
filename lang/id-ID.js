@@ -63,6 +63,11 @@ export default {
       },
       changeSearch: {
         title: 'Ubah pencarian'
+      },
+      freeBreakfast: 'Sarapan gratis',
+      freeCancellation: 'Pembatalan gratis',
+      totalDistance: {
+        label: '{i} dari lokasi pencarian Anda'
       }
     }
   }

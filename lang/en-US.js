@@ -63,6 +63,11 @@ export default {
       },
       changeSearch: {
         title: 'Change search'
+      },
+      freeBreakfast: 'Free breakfast',
+      freeCancellation: 'Free cancellation',
+      totalDistance: {
+        label: '{i} from your search location'
       }
     }
   }

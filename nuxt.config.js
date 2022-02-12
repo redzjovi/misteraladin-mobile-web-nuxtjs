@@ -107,6 +107,7 @@ export default {
   build: {},
 
   publicRuntimeConfig: {
+    hotelApiUrl: process.env.HOTEL_API_URL,
     generalApiUrl: process.env.GENERAL_API_URL,
   }
 }

@@ -39,14 +39,18 @@ export default defineComponent({
       }))
 
       setTimeout(() => {
-        state.changeSearchPopupShow = false
         hotelSearch.queryToStateFilter()
+        state.changeSearchPopupShow = false
+
+        hotelSearch.stateDataReset()
+        hotelSearch.getHotels()
       }, 100)
     }
 
     onMounted(() => {
       changeSearch.queryToStateFilter()
       hotelSearch.queryToStateFilter()
+      hotelSearch.getHotels()
     })
 
     return {
@@ -61,7 +65,7 @@ export default defineComponent({
 
 <template>
   <div>
-    <v-app-bar dense>
+    <v-app-bar app dense>
       <v-app-bar-nav-icon>
         <v-btn exact icon :to="localeRoute({ name: 'hotel' })">
           <v-icon>mdi-arrow-left</v-icon>
@@ -151,13 +155,70 @@ export default defineComponent({
     </v-app-bar>
     <v-main>
       <v-container>
-        <v-card>
-          <v-card-text>
-            <!--  -->
-            <pre>{{ changeSearch.state }}</pre>
-            <pre>{{ hotelSearch.state }}</pre>
-          </v-card-text>
-        </v-card>
+        <template v-if="hotelSearch.state.loading && hotelSearch.state.data.length === 0">
+          <v-card v-for="i in 8" :key="i" class="mb-4">
+            <v-card-text>
+              <v-row>
+                <v-col cols="3">
+                  <v-skeleton-loader type="image" />
+                </v-col>
+                <v-col cols="9">
+                  <v-skeleton-loader type="list-item-three-line" />
+                </v-col>
+              </v-row>
+            </v-card-text>
+          </v-card>
+        </template>
+        <template v-for="hotel in hotelSearch.state.data">
+          <v-card :key="hotel.code" class="mb-4">
+            <v-card-text>
+              <v-row>
+                <v-col cols="3">
+                  <template v-if="hotel.images.length > 0">
+                    <v-img :src="hotel.images[0].url"></v-img>
+                  </template>
+                </v-col>
+                <v-col cols="9">
+                  <h5>{{ hotel.name }}</h5>
+                  <div class="d-flex flex-row">
+                    <v-rating
+                      color="warning"
+                      dense
+                      size="12"
+                      :length="hotel.starRating"
+                      :value="hotel.starRating"
+                    />
+                    <h6 class="ml-1 text--disabled">
+                      <template
+                        v-if="hotelSearch.state.filter.latitude && hotelSearch.state.filter.longitude"
+                      >
+                        {{ $t('pages.hotel-search.totalDistance.label', { i: hotel.distance }) }}
+                      </template>
+                      <template v-else>
+                        {{ hotel.area.name }},
+                        {{ hotel.city.name }}
+                      </template>
+                    </h6>
+                  </div>
+                  <h6 v-if="hotel.freeCancellation" class="primary--text">
+                    <v-icon x-small>mdi-calendar-refresh</v-icon>
+                    {{ $t('pages.hotel-search.freeCancellation') }}
+                  </h6>
+                  <h6 v-if="hotel.freeBreakfast" class="primary--text">
+                    <v-icon x-small>mdi-silverware</v-icon>
+                    {{ $t('pages.hotel-search.freeBreakfast') }}
+                  </h6>
+                  <h5
+                    class="text-decoration-line-through text-right text--secondary"
+                  >
+                    IDR {{ hotel.priceFrom }}
+                  </h5>
+                  <h4 class="red--text text-right">IDR {{ hotel.price }}</h4>
+                </v-col>
+              </v-row>
+            </v-card-text>
+          </v-card>
+        </template>
       </v-container>
     </v-main>
   </div>
