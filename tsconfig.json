@@ -15,7 +15,7 @@
       "~/*": ["./*"],
       "@/*": ["./*"]
     },
-    "noUnusedLocals": true,
+    "noUnusedLocals": false,
     "types": [
       "@nuxt/types",
       "@nuxtjs/axios",
