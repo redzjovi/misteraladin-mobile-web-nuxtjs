@@ -58,9 +58,14 @@ export default {
       title: 'Hotel'
     },
     'hotel-countrySlug-hotelSlug': {
+      fromIReview: 'Dari {i} ulasan | Dari {i} ulasan',
       hotel: 'Hotel',
       photo: {
         more: '{i} lainnya'
+      },
+      review: 'Ulasan',
+      topReview: {
+        seeAll: 'Lihat semua'
       }
     },
     'hotel-search': {

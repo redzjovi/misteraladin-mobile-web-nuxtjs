@@ -13,6 +13,9 @@
 .right-0 {
   right: 0;
 }
+.overflow-x-scroll {
+  overflow-x: scroll;
+}
 .text-center {
   text-align: center;
 }
@@ -21,4 +24,7 @@
 }
 .whitespace-normal {
   white-space: normal !important;
+}
+.whitespace-nowrap {
+  white-space: nowrap;
 }

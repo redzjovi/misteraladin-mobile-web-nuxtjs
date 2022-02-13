@@ -9,10 +9,15 @@ import {
   useMeta
 } from '@nuxtjs/composition-api';
 import useHotel from '~/composables/useHotel';
+import { Review } from '~/composables/useReview';
 import useRoomAvailability from '~/composables/useRoomAvailability';
 
 export default defineComponent({
   name: 'HotelCountrySlugHotelSlugPage',
+  components: {
+    ReviewBottomSheet: () => import('~/components/ReviewBottomSheet.vue'),
+    ReviewCard: () => import('~/components/ReviewCard.vue')
+  },
   nuxtI18n: {
     paths: {
       en: '/hotel/:countrySlug/:hotelSlug',
@@ -27,7 +32,9 @@ export default defineComponent({
     const state = reactive({
       photoIntersect: ref(false),
       photoPopupShow: ref(false),
-      photoPopupShowIndex: ref(0)
+      photoPopupShowIndex: ref(0),
+      topReview: ref<null | Review>(null),
+      topReviewPopupShow: ref(false)
     })
 
     const stateHotel = useAsync(() => {
@@ -48,6 +55,11 @@ export default defineComponent({
       state.photoPopupShowIndex = index
     }
 
+    const stateTopReviewClick = (review: Review) => {
+      state.topReview = review
+      state.topReviewPopupShow = true
+    }
+
     useMeta({
       title: stateHotel.value ? stateHotel.value.name : ''
     })
@@ -62,7 +74,8 @@ export default defineComponent({
       state,
       stateHotel,
       statePhotoIntersecting,
-      statePhotoPopupShow
+      statePhotoPopupShow,
+      stateTopReviewClick
     }
   },
   head: {}
@@ -191,5 +204,56 @@ export default defineComponent({
         </div>
       </v-card-subtitle>
     </v-card>
+    <v-card v-if="stateHotel" outlined tile>
+      <v-card-title>{{ $t('pages.hotel-countrySlug-hotelSlug.review') }}</v-card-title>
+      <v-card-text>
+        <div>
+          <v-chip color="primary" small>{{ stateHotel.reviewRatingScore }}</v-chip>
+          {{ stateHotel.reviewRatingName }}
+        </div>
+        <div>{{ $tc('pages.hotel-countrySlug-hotelSlug.fromIReview', stateHotel.reviewRatingCount, { i: stateHotel.reviewRatingCount }) }}</div>
+        <template v-if="roomAvailability.state.included.topReviews.loading">
+          <div class="overflow-x-scroll whitespace-nowrap">
+            <v-skeleton-loader
+              v-for="i in 5"
+              :key="i"
+              class="d-inline-block mr-1"
+              height="150"
+              type="image"
+              width="250"
+            />
+          </div>
+          <div align="center">
+            <v-skeleton-loader type="button" x-small />
+          </div>
+        </template>
+        <div
+          v-if="roomAvailability.state.included.topReviews.data.length > 0"
+          class="overflow-x-scroll whitespace-nowrap"
+        >
+          <ReviewCard
+            v-for="(topReview, i) in roomAvailability.state.included.topReviews.data"
+            :key="i"
+            class="d-inline-block mr-1"
+            height="150"
+            width="250"
+            :content-length-max="110"
+            :value="topReview"
+            @click.native="stateTopReviewClick(topReview)"
+          />
+          <ReviewBottomSheet v-model="state.topReviewPopupShow" :review="state.topReview" />
+        </div>
+        <template v-if="roomAvailability.state.included.reviews.data.length > 5">
+          <div align="center">
+            <v-btn color="primary" text>
+              {{ $t('pages.hotel-countrySlug-hotelSlug.topReview.seeAll') }}
+            </v-btn>
+          </div>
+        </template>
+      </v-card-text>
+    </v-card>
+    <v-main>
+      <v-container></v-container>
+    </v-main>
   </div>
 </template>

@@ -42,6 +42,7 @@ export default {
     '@nuxtjs/axios',
     '@nuxtjs/dayjs',
     '@nuxtjs/i18n',
+    '@nuxtjs/proxy',
     // https://go.nuxtjs.dev/pwa
     '@nuxtjs/pwa',
     'portal-vue/nuxt'
@@ -51,6 +52,7 @@ export default {
   axios: {
     // Workaround to avoid enforcing hard-coded localhost:3000: https://github.com/nuxt-community/axios-module/issues/308
     baseURL: '/',
+    proxy: true
   },
 
   dayjs: {
@@ -75,6 +77,13 @@ export default {
     vueI18n: {
       fallbackLocale: 'en',
     },
+  },
+
+  proxy: {
+    '/api/review': {
+      pathRewrite: { '^/api/review': '' },
+      target: process.env.HOTEL_REVIEW_API_URL
+    }
   },
 
   // PWA module configuration: https://go.nuxtjs.dev/pwa
@@ -108,6 +117,7 @@ export default {
 
   publicRuntimeConfig: {
     hotelApiUrl: process.env.HOTEL_API_URL,
+    hotelReviewApiUrl: process.env.HOTEL_REVIEW_API_URL,
     generalApiUrl: process.env.GENERAL_API_URL,
   }
 }

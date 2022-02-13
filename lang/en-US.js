@@ -58,9 +58,14 @@ export default {
       title: 'Hotel'
     },
     'hotel-countrySlug-hotelSlug': {
+      fromIReview: 'From {i} review | From {i} reviews',
       hotel: 'Hotel',
       photo: {
         more: '{i} more'
+      },
+      review: 'Review',
+      topReview: {
+        seeAll: 'See all'
       }
     },
     'hotel-search': {
