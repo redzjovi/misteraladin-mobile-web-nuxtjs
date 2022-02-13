@@ -1,3 +1,4 @@
+import { useContext } from '@nuxtjs/composition-api'
 import useArea, {
   Area
 } from '~/composables/useArea'
@@ -24,16 +25,34 @@ export interface Hotel {
   name: string;
   priceFrom: null | number;
   price: null | number;
+  reviewRatingCount: number;
   reviewRatingName: string;
-  reviewRatingValue: number;
+  reviewRatingScore: number;
+  slug: string;
   starRating: number;
 }
 
 export default () => {
   const area = useArea()
   const city = useCity()
+  const {
+    $axios,
+    $config
+  } = useContext()
   const country = useCountry()
   const image = useImage()
+
+  const getHotel = (code: string) => new Promise<Hotel>((resolve, reject) => {
+    $axios.get(
+      $config.hotelApiUrl + '/' + code
+    ).then(r => {
+      resolve(
+        hotelHotelToHotel(r.data.data as HotelHotel)
+      )
+    }).catch(e => {
+      reject(e)
+    })
+  })
 
   const hotelHotelToHotel = (h: HotelHotel): Hotel => {
     return {
@@ -48,13 +67,16 @@ export default () => {
       name: h.name,
       priceFrom: Number(h.cheapest_room?.rate.gimmick_room_night),
       price: Number(h.cheapest_room?.rate.average_room_night),
+      reviewRatingCount: h.review.count,
       reviewRatingName: h.review.description,
-      reviewRatingValue: h.review.count,
+      reviewRatingScore: h.review.score,
+      slug: h.slug + '-' + h.id,
       starRating: h.star_rating
     }
   }
 
   return {
+    getHotel,
     hotelHotelToHotel
   }
 }

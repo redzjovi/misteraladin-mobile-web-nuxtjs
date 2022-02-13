@@ -1,6 +1,8 @@
 /* eslint-disable no-use-before-define */
 import { Area } from '~/types/misteraladin/api/hotels/areas';
+import { Group } from '~/types/misteraladin/api/hotels/groups';
 import { Room } from '~/types/misteraladin/api/hotels/searches';
+import { Tag } from '~/types/misteraladin/api/hotels/tags';
 
 export interface Badge {
   name: string;
@@ -34,6 +36,13 @@ export interface Hotel {
   additional_values: string[];
   area: Area;
   badges: Badge[];
+  group: Group | null;
+  tags: Tag[];
+  facilities: string[];
+}
+
+export interface ResponseBody {
+  data: Hotel;
 }
 
 export interface Review {

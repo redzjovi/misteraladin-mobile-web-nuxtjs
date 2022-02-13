@@ -220,7 +220,24 @@ export default defineComponent({
           </v-card>
         </template>
         <template v-for="(hotel, i) in hotelSearch.state.data">
-          <v-card :key="hotel.code" class="mb-4">
+          <v-card
+            :key="hotel.code"
+            class="mb-4"
+            target="_blank"
+            :to="localeRoute({
+              name: 'hotel-countrySlug-hotelSlug',
+              params: {
+                'countrySlug': hotel.country.slug,
+                'hotelSlug': hotel.slug
+              },
+              query: {
+                checkIn: changeSearch.state.filter.checkIn,
+                checkOut: changeSearch.state.filter.checkOut,
+                guest: changeSearch.state.filter.guest.toString(),
+                room: changeSearch.state.filter.room.toString()
+              }
+            })"
+          >
             <v-card-text>
               <v-row>
                 <v-col cols="3">

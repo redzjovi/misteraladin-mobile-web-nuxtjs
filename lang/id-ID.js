@@ -57,6 +57,12 @@ export default {
       },
       title: 'Hotel'
     },
+    'hotel-countrySlug-hotelSlug': {
+      hotel: 'Hotel',
+      photo: {
+        more: '{i} lainnya'
+      }
+    },
     'hotel-search': {
       appBar: {
         totalNight: '{i} malam | {i} malam'
