@@ -4,10 +4,16 @@ import {
   ref,
   useContext
 } from '@nuxtjs/composition-api'
+import useFacility, {
+  Facility
+} from '~/composables/useFacility'
 import { Hotel } from '~/composables/useHotel'
 import useImage, {
   Image
 } from '~/composables/useImage'
+import {
+  ResponseBody as HotelIdFacilityResponseBody
+} from '~/types/misteraladin/api/hotels/_id/facilities'
 import {
   ResponseBody as HotelIdPhotoResponseBody
 } from '~/types/misteraladin/api/hotels/_id/photos'
@@ -30,6 +36,7 @@ export default () => {
     i18n,
     params
   } = useContext()
+  const facility = useFacility()
   const image = useImage()
   const json = useJson()
   const review = useReview()
@@ -45,6 +52,10 @@ export default () => {
       room: ref(1)
     },
     included: {
+      groupFacilities: {
+        data: ref<Map<string, Facility[]>>(new Map()),
+        loading: false
+      },
       images: {
         data: ref<Image[]>([]),
         loading: false
@@ -106,6 +117,22 @@ export default () => {
     })
   }
 
+  const getIncludedGroupFacilities = () => {
+    state.included.groupFacilities.loading = true
+    $axios.get($config.hotelApiUrl + '/' + state.filter.hotelCode + '/facilities').then(r => {
+      state.included.groupFacilities.data = new Map();
+      (r.data as HotelIdFacilityResponseBody).data.forEach(f => {
+        const hiftf = facility.hotelIdFacilityToFacility(f)
+        state.included.groupFacilities.data.set(hiftf.group.name, [
+          ...state.included.groupFacilities.data.get(hiftf.group.name) || [],
+          hiftf
+        ])
+      })
+    }).finally(() => {
+      state.included.groupFacilities.loading = false
+    })
+  }
+
   const getIncludedReviews = () => {
     state.included.reviews.loading = true
     $axios.post(
@@ -137,6 +164,7 @@ export default () => {
 
   return {
     getIncluded,
+    getIncludedGroupFacilities,
     getIncludedReviews,
     paramsToStateFilter,
     state

@@ -68,6 +68,9 @@ export default {
       title: 'Hotel'
     },
     'hotel-countrySlug-hotelSlug': {
+      facility: {
+        title: 'Facilities'
+      },
       fromIReview: 'From {i} review | From {i} reviews',
       hotel: 'Hotel',
       photo: {
@@ -78,6 +81,10 @@ export default {
           label: 'Sort'
         },
         title: 'Review'
+      },
+      topFacility: {
+        seeAll: 'See all',
+        title: 'Popular Facilities'
       },
       topReview: {
         seeAll: 'See all'

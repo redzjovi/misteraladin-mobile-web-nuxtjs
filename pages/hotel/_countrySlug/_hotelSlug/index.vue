@@ -30,6 +30,7 @@ export default defineComponent({
     const roomAvailability = useRoomAvailability()
 
     const state = reactive({
+      facilityPopupShow: ref(false),
       photoIntersect: ref(false),
       photoPopupShow: ref(false),
       photoPopupShowIndex: ref(0),
@@ -62,6 +63,11 @@ export default defineComponent({
       roomAvailability.getIncludedReviews()
     }
 
+    const stateTopFacilitySeeAllClick = () => {
+      state.facilityPopupShow = true
+      roomAvailability.getIncludedGroupFacilities()
+    }
+
     const stateTopReviewClick = (review: Review) => {
       state.topReview = review
       state.topReviewPopupShow = true
@@ -88,6 +94,7 @@ export default defineComponent({
       statePhotoIntersecting,
       statePhotoPopupShow,
       stateReviewSortSubmit,
+      stateTopFacilitySeeAllClick,
       stateTopReviewClick,
       stateTopReviewSeeAllClick
     }
@@ -361,6 +368,70 @@ export default defineComponent({
             </v-bottom-sheet>
           </div>
         </template>
+      </v-card-text>
+    </v-card>
+    <v-card v-if="stateHotel" outlined tile>
+      <v-card-title>{{ $t('pages.hotel-countrySlug-hotelSlug.topFacility.title') }}</v-card-title>
+      <v-card-text v-if="stateHotel.facilities.length > 0">
+        <ul>
+          <li v-for="(facility, i) in stateHotel.facilities.slice(0, 8)" :key="i">
+            {{ facility.name }}
+          </li>
+        </ul>  
+        <div align="center">
+          <v-btn
+            color="primary"
+            text
+            @click="stateTopFacilitySeeAllClick"
+          >
+            {{ $t('pages.hotel-countrySlug-hotelSlug.topFacility.seeAll') }}
+          </v-btn>
+          <v-bottom-sheet v-model="state.facilityPopupShow" scrollable>
+            <v-card>
+              <v-card-title class="pa-0">
+                <v-app-bar dense>
+                  <v-app-bar-nav-icon>
+                    <v-btn icon @click="state.facilityPopupShow = false">
+                      <v-icon>mdi-close</v-icon>
+                    </v-btn>
+                  </v-app-bar-nav-icon>
+                  <v-app-bar-title>{{ $t('pages.hotel-countrySlug-hotelSlug.facility.title') }}</v-app-bar-title>
+                </v-app-bar>
+              </v-card-title>
+              <v-list dense disabled>
+                <v-subheader>{{ $t('pages.hotel-countrySlug-hotelSlug.topFacility.title') }}</v-subheader>
+                <v-list-item v-for="(facility, i) in stateHotel.facilities" :key="i">
+                  <v-list-item-content>
+                    <v-list-item-title v-text="facility.name" />
+                  </v-list-item-content>
+                </v-list-item>
+              </v-list>
+              <template v-if="roomAvailability.state.included.groupFacilities.loading">
+                <template v-for="i in 3">
+                  <v-list :key="i" dense disabled>
+                    <v-divider class="mb-4" />
+                    <v-skeleton-loader v-for="j in 5" :key="j" type="list-item" />
+                  </v-list>
+                </template>
+              </template>
+              <template v-else>
+                <template
+                  v-for="([groupName, facilities], i) in roomAvailability.state.included.groupFacilities.data"
+                >
+                  <v-list :key="i" dense disabled>
+                    <v-divider class="mb-4" />
+                    <v-subheader>{{ groupName }}</v-subheader>
+                    <v-list-item v-for="(facility, j) in facilities" :key="j">
+                      <v-list-item-content>
+                        <v-list-item-title v-text="facility.name" />
+                      </v-list-item-content>
+                    </v-list-item>
+                  </v-list>
+                </template>
+              </template>
+            </v-card>
+          </v-bottom-sheet>
+        </div>
       </v-card-text>
     </v-card>
     <v-main>

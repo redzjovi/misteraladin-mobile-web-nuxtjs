@@ -8,6 +8,10 @@ import useCity, {
 import useCountry, {
   Country
 } from '~/composables/useCountry'
+import useFacility,
+{
+  Facility
+} from '~/composables/useFacility'
 import useImage, {
   Image
 } from '~/composables/useImage'
@@ -19,6 +23,7 @@ export interface Hotel {
   code: string;
   country: Country;
   distance: string;
+  facilities: Facility[];
   freeBreakfast: boolean;
   freeCancellation: boolean;
   images: Image[];
@@ -40,6 +45,7 @@ export default () => {
     $config
   } = useContext()
   const country = useCountry()
+  const facility = useFacility()
   const image = useImage()
 
   const getHotel = (code: string) => new Promise<Hotel>((resolve, reject) => {
@@ -61,6 +67,7 @@ export default () => {
       code: String(h.id),
       country: country.hotelCountryToCountry(h.area.city.state.country),
       distance: h.distance,
+      facilities: h.facilities?.map(f => facility.hotelFacilityToFacility(f)) || [],
       freeBreakfast: Number(h.cheapest_room?.breakfast) > 0,
       freeCancellation: Boolean(h.cheapest_room?.info?.non_refundable) === false,
       images: [image.hotelHotelToImage(h)],

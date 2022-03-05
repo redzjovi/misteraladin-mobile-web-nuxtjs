@@ -38,7 +38,7 @@ export interface Hotel {
   badges: Badge[];
   group: Group | null;
   tags: Tag[];
-  facilities: string[];
+  facilities?: string[];
 }
 
 export interface ResponseBody {

@@ -68,6 +68,9 @@ export default {
       title: 'Hotel'
     },
     'hotel-countrySlug-hotelSlug': {
+      facility: {
+        title: 'Fasilitas'
+      },
       fromIReview: 'Dari {i} ulasan | Dari {i} ulasan',
       hotel: 'Hotel',
       photo: {
@@ -78,6 +81,10 @@ export default {
           label: 'Urutkan'
         },
         title: 'Ulasan'
+      },
+      topFacilities: {
+        seeAll: 'Lihat semua',
+        title: 'Facilitas populer'
       },
       topReview: {
         seeAll: 'Lihat semua'
