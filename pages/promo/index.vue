@@ -1,8 +1,13 @@
 <script lang="ts">
 import {
   defineComponent,
-  onMounted
+  onMounted,
+  reactive,
+  ref,
+  useContext,
+  useRouter
 } from '@nuxtjs/composition-api'
+import useMenu from '~/composables/useMenu'
 import usePromo from '~/composables/usePromo'
 
 export default defineComponent({
@@ -14,14 +19,35 @@ export default defineComponent({
     }
   },
   setup() {
+    const { app } = useContext()
+    const menu = useMenu()
     const promo = usePromo()
+    const $router = useRouter()
+
+    const state = reactive({
+      filterShow: ref(false)
+    })
+
+    const filterSubmit = () => {
+      $router.push(app.localePath({
+        name: 'promo',
+        query: promo.stateToQuery()
+      }))
+      state.filterShow = false
+      promo.getPromos()
+    }
 
     onMounted(() => {
+      menu.getMenus()
+      promo.stateToQuery()
       promo.getPromos()
     })
 
     return {
-      promo
+      filterSubmit,
+      menu,
+      promo,
+      state
     }
   }
 })
@@ -36,9 +62,53 @@ export default defineComponent({
         </v-btn>
       </v-app-bar-nav-icon>
       <v-spacer></v-spacer>
-      <v-btn icon>
+      <v-btn icon @click="state.filterShow = true">
         <v-icon>mdi-filter</v-icon>
       </v-btn>
+      <v-bottom-sheet v-model="state.filterShow">
+        <v-list class="pa-0">
+          <v-subheader>{{ $t('filter') }}</v-subheader>
+          <v-list-item-group v-model="promo.state.filter.types" multiple>
+            <template v-if="menu.state.loading">
+              <v-skeleton-loader v-for="i in 5" :key="i" type="list-item-avatar" />
+            </template>
+            <template v-else>
+              <v-list-item v-for="(m, i) in menu.stateActiveMenus.value" :key="i" :value="m.type">
+                <template #default="{ active }">
+                  <v-list-item-avatar>
+                    <v-img :src="m.iconUrl"></v-img>
+                  </v-list-item-avatar>
+                  <v-list-item-content>
+                    <v-list-item-title v-text="m.title"></v-list-item-title>
+                  </v-list-item-content>
+                  <v-list-item-action>
+                    <v-checkbox :input-value="active"></v-checkbox>
+                  </v-list-item-action>
+                </template>
+              </v-list-item>
+            </template>
+          </v-list-item-group>
+          <v-list-item>
+            <v-list-item-content>
+              <v-row>
+                <v-col>
+                  <v-btn
+                    block
+                    color="error"
+                    outlined
+                    @click="state.filterShow = false"
+                  >
+                    {{ $t('cancel') }}
+                  </v-btn>
+                </v-col>
+                <v-col>
+                  <v-btn block color="primary" @click="filterSubmit">{{ $t('ok') }}</v-btn>
+                </v-col>
+              </v-row>
+            </v-list-item-content>
+          </v-list-item>
+        </v-list>
+      </v-bottom-sheet>
     </v-app-bar>
     <v-main>
       <v-container>

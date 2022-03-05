@@ -1,8 +1,10 @@
 import {
   reactive,
   ref,
-  useContext
+  useContext,
+  useRoute
 } from '@nuxtjs/composition-api'
+import useJson from '~/composables/useJson'
 import { LandingPage as GeneralLandingPage } from '~/types/misteraladin/api/generals/landing-pages'
 
 export interface Promo {
@@ -21,8 +23,13 @@ export default () => {
     $config,
     i18n
   } = useContext()
+  const json = useJson()
+  const $route = useRoute()
 
   const state = reactive({
+    filter: {
+      types: ref<string[]>([])
+    },
     loading: ref(false),
     promos: ref<Promo[]>([])
   })
@@ -66,7 +73,8 @@ export default () => {
     $axios.get($config.generalApiUrl + '/landing-pages', {
       headers: {
         'X-Platform': 'mobile-web'
-      }
+      },
+      params: stateToGeneralLandingPagesRequestQuery()
     }).then(r => {
       state.promos = [];
       (r.data.data as GeneralLandingPage[]).forEach(lp => {
@@ -77,9 +85,31 @@ export default () => {
     })
   }
 
+  const queryToStateFilter = () => {
+    state.filter.types = $route.value.query.type ? String($route.value.query.type).split(',') : []
+  }
+
+  const stateToGeneralLandingPagesRequestQuery = () => {
+    const requestQuery = {
+      product_type: state.filter.types.join(',')
+    }
+
+    return json.pickBy(requestQuery)
+  }
+
+  const stateToQuery = () => {
+    const query = {
+      types: state.filter.types.join(',')
+    }
+
+    return json.pickBy(query)
+  }
+
   return {
     getPromoBySlug,
     getPromos,
-    state
+    queryToStateFilter,
+    state,
+    stateToQuery
   }
 }
