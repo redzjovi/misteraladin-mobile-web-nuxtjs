@@ -1,4 +1,7 @@
-import { Review as HotelReviewSearchReview } from '~/types/misteraladin/api/hotel-review/search'
+import {
+  Review as HotelReviewSearchReview,
+  RequestBodySort as HotelReviewSearchRequestBodySort
+} from '~/types/misteraladin/api/hotel-review/search'
 export interface Review {
   code: string;
   content: string;
@@ -9,6 +12,13 @@ export interface Review {
   },
   score: number;
   typeName: string;
+}
+
+export enum Sort {
+  Default = '',
+  Latest = '-date',
+  ScoreHighest = '-score',
+  ScoreLowest = 'score'
 }
 
 export default () => {
@@ -26,7 +36,22 @@ export default () => {
     }
   }
 
+  const sortToHotelReviewSearchRequestBodySort = (sort: Sort): HotelReviewSearchRequestBodySort => {
+    let newSort = HotelReviewSearchRequestBodySort.Default
+    if (sort === Sort.Default) {
+      newSort = HotelReviewSearchRequestBodySort.Default
+    } else if (sort === Sort.Latest) {
+      newSort = HotelReviewSearchRequestBodySort.Newest
+    } else if (sort === Sort.ScoreHighest) {
+      newSort = HotelReviewSearchRequestBodySort.RatingHighest
+    } else if (sort === Sort.ScoreLowest) {
+      newSort = HotelReviewSearchRequestBodySort.RatingLowest
+    }
+    return newSort
+  }
+
   return {
-    hotelReviewSearchReviewToReview
+    hotelReviewSearchReviewToReview,
+    sortToHotelReviewSearchRequestBodySort
   }
 }

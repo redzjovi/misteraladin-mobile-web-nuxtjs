@@ -33,6 +33,8 @@ export default defineComponent({
       photoIntersect: ref(false),
       photoPopupShow: ref(false),
       photoPopupShowIndex: ref(0),
+      reviewPopupShow: ref(false),
+      reviewSortPopupShow: ref(false),
       topReview: ref<null | Review>(null),
       topReviewPopupShow: ref(false)
     })
@@ -55,9 +57,19 @@ export default defineComponent({
       state.photoPopupShowIndex = index
     }
 
+    const stateReviewSortSubmit = () => {
+      state.reviewSortPopupShow = false
+      roomAvailability.getIncludedReviews()
+    }
+
     const stateTopReviewClick = (review: Review) => {
       state.topReview = review
       state.topReviewPopupShow = true
+    }
+
+    const stateTopReviewSeeAllClick = () => {
+      state.reviewPopupShow = true
+      roomAvailability.getIncludedReviews()
     }
 
     useMeta({
@@ -75,7 +87,9 @@ export default defineComponent({
       stateHotel,
       statePhotoIntersecting,
       statePhotoPopupShow,
-      stateTopReviewClick
+      stateReviewSortSubmit,
+      stateTopReviewClick,
+      stateTopReviewSeeAllClick
     }
   },
   head: {}
@@ -205,7 +219,7 @@ export default defineComponent({
       </v-card-subtitle>
     </v-card>
     <v-card v-if="stateHotel" outlined tile>
-      <v-card-title>{{ $t('pages.hotel-countrySlug-hotelSlug.review') }}</v-card-title>
+      <v-card-title>{{ $t('pages.hotel-countrySlug-hotelSlug.review.title') }}</v-card-title>
       <v-card-text>
         <div>
           <v-chip color="primary" small>{{ stateHotel.reviewRatingScore }}</v-chip>
@@ -243,11 +257,108 @@ export default defineComponent({
           />
           <ReviewBottomSheet v-model="state.topReviewPopupShow" :review="state.topReview" />
         </div>
-        <template v-if="roomAvailability.state.included.reviews.data.length > 5">
+        <template v-if="roomAvailability.state.included.topReviews.data.length > 0">
           <div align="center">
-            <v-btn color="primary" text>
+            <v-btn
+              color="primary"
+              text
+              @click="stateTopReviewSeeAllClick"
+            >
               {{ $t('pages.hotel-countrySlug-hotelSlug.topReview.seeAll') }}
             </v-btn>
+            <v-bottom-sheet v-model="state.reviewPopupShow" scrollable>
+              <v-card>
+                <v-card-title class="pa-0">
+                  <v-app-bar dense>
+                    <v-app-bar-nav-icon>
+                      <v-btn icon @click="state.reviewPopupShow = false">
+                        <v-icon>mdi-close</v-icon>
+                      </v-btn>
+                    </v-app-bar-nav-icon>
+                    <v-app-bar-title>{{ $t('pages.hotel-countrySlug-hotelSlug.review.title') }}</v-app-bar-title>
+                  </v-app-bar>
+                </v-card-title>
+                <v-card-text class="pa-4">
+                  <div>
+                    <v-chip color="primary" small>{{ stateHotel.reviewRatingScore }}</v-chip>
+                    {{ stateHotel.reviewRatingName }}
+                  </div>
+                  <div>{{ $tc('pages.hotel-countrySlug-hotelSlug.fromIReview', stateHotel.reviewRatingCount, { i: stateHotel.reviewRatingCount }) }}</div>
+                  <v-divider class="mb-4" />
+                  <template v-if="roomAvailability.state.included.reviews.loading">
+                    <v-skeleton-loader
+                      v-for="i in 10"
+                      :key="i"
+                      class="mb-4"
+                      height="150"
+                      type="image"
+                    />
+                  </template>
+                  <template v-else>
+                    <ReviewCard
+                      v-for="(review, i) in roomAvailability.state.included.reviews.data"
+                      :key="i"
+                      class="mb-4"
+                      :value="review"
+                    />
+                    <div class="mb-16"></div>
+                  </template>
+                  <div class="bottom-4 fixed left-0 right-0 text-center">
+                    <v-btn-toggle rounded>
+                      <v-btn
+                        :disabled="roomAvailability.state.included.reviews.loading"
+                        @click="state.reviewSortPopupShow = true"
+                      >
+                        <v-icon>mdi-sort-reverse-variant</v-icon>
+                        {{ $t('pages.hotel-countrySlug-hotelSlug.review.sort.label') }}
+                      </v-btn>
+                    </v-btn-toggle>
+                    <v-bottom-sheet v-model="state.reviewSortPopupShow">
+                      <v-card>
+                        <v-card-title class="pa-0">
+                          <v-app-bar dense>
+                            <v-app-bar-nav-icon>
+                              <v-btn icon @click="state.reviewSortPopupShow = false">
+                                <v-icon>mdi-close</v-icon>
+                              </v-btn>
+                            </v-app-bar-nav-icon>
+                            <v-app-bar-title>{{ $t('pages.hotel-countrySlug-hotelSlug.review.sort.label') }}</v-app-bar-title>
+                          </v-app-bar>
+                        </v-card-title>
+                        <v-card-text class="pa-0">
+                          <v-list class="pa-0">
+                            <v-list-item-group
+                              v-model="roomAvailability.state.included.reviews.filter.sort"
+                              mandatory
+                              @change="stateReviewSortSubmit"
+                            >
+                              <template
+                                v-for="(o, i) in roomAvailability.state.included.reviews.sort.options"
+                              >
+                                <v-list-item :key="i" :value="o.id">
+                                  <template #default>
+                                    <v-list-item-content>
+                                      <v-list-item-title v-text="o.name"></v-list-item-title>
+                                    </v-list-item-content>
+                                    <v-list-item-action>
+                                      <v-radio-group
+                                        :value="roomAvailability.state.included.reviews.filter.sort"
+                                      >
+                                        <v-radio :value="o.id"></v-radio>
+                                      </v-radio-group>
+                                    </v-list-item-action>
+                                  </template>
+                                </v-list-item>
+                              </template>
+                            </v-list-item-group>
+                          </v-list>
+                        </v-card-text>
+                      </v-card>
+                    </v-bottom-sheet>
+                  </div>
+                </v-card-text>
+              </v-card>
+            </v-bottom-sheet>
           </div>
         </template>
       </v-card-text>

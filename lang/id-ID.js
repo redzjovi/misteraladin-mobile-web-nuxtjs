@@ -30,6 +30,16 @@ export default {
       }
     }
   },
+  composables: {
+    useReview: {
+      sort: {
+        default: 'Paling membantu',
+        latest: 'Terbaru',
+        scoreHighest: 'Rating tertinggi',
+        scoreLowest: 'Rating terendah',
+      }
+    }
+  },
   pages: {
     hotel: {
       form: {
@@ -63,7 +73,12 @@ export default {
       photo: {
         more: '{i} lainnya'
       },
-      review: 'Ulasan',
+      review: {
+        sort: {
+          label: 'Urutkan'
+        },
+        title: 'Ulasan'
+      },
       topReview: {
         seeAll: 'Lihat semua'
       }

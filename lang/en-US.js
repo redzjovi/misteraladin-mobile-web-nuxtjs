@@ -30,6 +30,16 @@ export default {
       }
     }
   },
+  composables: {
+    useReview: {
+      sort: {
+        default: 'Most helpful',
+        latest: 'Latest',
+        scoreHighest: 'Highest rating',
+        scoreLowest: 'Lowest rating',
+      }
+    }
+  },
   pages: {
     hotel: {
       form: {
@@ -63,7 +73,12 @@ export default {
       photo: {
         more: '{i} more'
       },
-      review: 'Review',
+      review: {
+        sort: {
+          label: 'Sort'
+        },
+        title: 'Review'
+      },
       topReview: {
         seeAll: 'See all'
       }

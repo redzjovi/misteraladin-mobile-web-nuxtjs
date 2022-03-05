@@ -12,7 +12,10 @@ import {
   ResponseBody as HotelIdPhotoResponseBody
 } from '~/types/misteraladin/api/hotels/_id/photos'
 import useJson from '~/composables/useJson'
-import useReview, { Review } from '~/composables/useReview'
+import useReview, {
+  Review,
+  Sort as ReviewSort
+} from '~/composables/useReview'
 import {
   RequestBody as HotelReviewSearchRequestBody,
   RequestBodySort as HotelReviewSearchRequestBodySort,
@@ -24,6 +27,7 @@ export default () => {
     $axios,
     $config,
     $dayjs,
+    i18n,
     params
   } = useContext()
   const image = useImage()
@@ -47,7 +51,18 @@ export default () => {
       },
       reviews: {
         data: ref<Review[]>([]),
-        loading: ref(false)
+        filter: {
+          sort: ref(ReviewSort.Default)
+        },
+        loading: ref(false),
+        sort: {
+          options: [
+            { id: ReviewSort.Default, name: i18n.t('composables.useReview.sort.default') },
+            { id: ReviewSort.Latest, name: i18n.t('composables.useReview.sort.latest') },
+            { id: ReviewSort.ScoreHighest, name: i18n.t('composables.useReview.sort.scoreHighest') },
+            { id: ReviewSort.ScoreLowest, name: i18n.t('composables.useReview.sort.scoreLowest') }
+          ]
+        }
       },
       topReviews: {
         data: ref<Review[]>([]),
@@ -78,7 +93,7 @@ export default () => {
           hotel_id: state.filter.hotelCode
         },
         sort: HotelReviewSearchRequestBodySort.RatingHighest,
-        perpage: 5
+        perpage: 3
       } as HotelReviewSearchRequestBody)
     ).then(r => {
       (r.data as HotelReviewSearchResponseBody).data.reviews.forEach(hrsrbdr => {
@@ -89,7 +104,9 @@ export default () => {
     }).finally(() => {
       state.included.topReviews.loading = false
     })
+  }
 
+  const getIncludedReviews = () => {
     state.included.reviews.loading = true
     $axios.post(
       'api/review' + '/search',
@@ -97,10 +114,11 @@ export default () => {
         filter: {
           hotel_id: state.filter.hotelCode
         },
-        sort: HotelReviewSearchRequestBodySort.Newest,
+        sort: review.sortToHotelReviewSearchRequestBodySort(state.included.reviews.filter.sort),
         perpage: 10
       } as HotelReviewSearchRequestBody)
     ).then(r => {
+      state.included.reviews.data = [];
       (r.data as HotelReviewSearchResponseBody).data.reviews.forEach(hrsrbdr => {
         state.included.reviews.data.push(
           review.hotelReviewSearchReviewToReview(hrsrbdr)
@@ -119,6 +137,7 @@ export default () => {
 
   return {
     getIncluded,
+    getIncludedReviews,
     paramsToStateFilter,
     state
   }
