@@ -73,6 +73,10 @@ export default {
       },
       fromIReview: 'Dari {i} ulasan | Dari {i} ulasan',
       hotel: 'Hotel',
+      location: {
+        seeMap: 'Lihat peta',
+        title: 'Lokasi',
+      },
       photo: {
         more: '{i} lainnya'
       },

@@ -434,6 +434,27 @@ export default defineComponent({
         </div>
       </v-card-text>
     </v-card>
+    <v-card v-if="stateHotel" outlined tile>
+      <v-card-title>{{ $t('pages.hotel-countrySlug-hotelSlug.location.title') }}</v-card-title>
+      <v-list dense disabled>
+        <v-list-item>
+          <v-list-item-icon>
+            <v-icon>mdi-map-marker-outline</v-icon>
+          </v-list-item-icon>
+          <v-list-item-content class="text-caption" v-text="stateHotel.address"></v-list-item-content>
+        </v-list-item>
+      </v-list>
+      <div align="center">
+        <v-btn
+          :href="`https://www.google.com/maps/search/?api=1&query=${stateHotel.latitude},${stateHotel.longitude}`"
+          color="primary"
+          target="_blank"
+          text
+        >
+          {{ $t('pages.hotel-countrySlug-hotelSlug.location.seeMap') }}
+        </v-btn>
+      </div>
+    </v-card>
     <v-main>
       <v-container></v-container>
     </v-main>

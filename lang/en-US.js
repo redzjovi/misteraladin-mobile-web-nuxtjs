@@ -73,6 +73,10 @@ export default {
       },
       fromIReview: 'From {i} review | From {i} reviews',
       hotel: 'Hotel',
+      location: {
+        seeMap: 'See map',
+        title: 'Location',
+      },
       photo: {
         more: '{i} more'
       },
