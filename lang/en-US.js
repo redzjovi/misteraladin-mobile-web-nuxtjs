@@ -68,6 +68,10 @@ export default {
       title: 'Hotel'
     },
     'hotel-countrySlug-hotelSlug': {
+      description: {
+        seeAll: 'See all',
+        title: 'Description',
+      },
       facility: {
         title: 'Facilities'
       },

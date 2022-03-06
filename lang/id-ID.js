@@ -68,6 +68,10 @@ export default {
       title: 'Hotel'
     },
     'hotel-countrySlug-hotelSlug': {
+      description: {
+        seeAll: 'Lihat semua',
+        title: 'Deskripsi',
+      },
       facility: {
         title: 'Fasilitas'
       },

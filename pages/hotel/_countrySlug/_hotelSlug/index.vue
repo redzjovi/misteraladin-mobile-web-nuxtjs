@@ -30,6 +30,7 @@ export default defineComponent({
     const roomAvailability = useRoomAvailability()
 
     const state = reactive({
+      descriptionPopupShow: ref(false),
       facilityPopupShow: ref(false),
       photoIntersect: ref(false),
       photoPopupShow: ref(false),
@@ -444,16 +445,54 @@ export default defineComponent({
           <v-list-item-content class="text-caption" v-text="stateHotel.address"></v-list-item-content>
         </v-list-item>
       </v-list>
-      <div align="center">
-        <v-btn
-          :href="`https://www.google.com/maps/search/?api=1&query=${stateHotel.latitude},${stateHotel.longitude}`"
-          color="primary"
-          target="_blank"
-          text
-        >
-          {{ $t('pages.hotel-countrySlug-hotelSlug.location.seeMap') }}
-        </v-btn>
-      </div>
+      <v-card-text>
+        <div align="center">
+          <v-btn
+            :href="`https://www.google.com/maps/search/?api=1&query=${stateHotel.latitude},${stateHotel.longitude}`"
+            color="primary"
+            target="_blank"
+            text
+          >
+            {{ $t('pages.hotel-countrySlug-hotelSlug.location.seeMap') }}
+          </v-btn>
+        </div>
+      </v-card-text>
+    </v-card>
+    <v-card v-if="stateHotel" outlined tile>
+      <v-card-title>{{ $t('pages.hotel-countrySlug-hotelSlug.description.title') }}</v-card-title>
+      <v-card-text>
+        <template v-if="roomAvailability.state.included.description.loading">
+          <v-skeleton-loader type="paragraph" />
+        </template>
+        <template v-else>
+          <div v-html="roomAvailability.state.included.description.data.length > 150 ? roomAvailability.state.included.description.data.slice(0, 150) + '...' : roomAvailability.state.included.description.data"></div>
+        </template>
+        <div align="center">
+          <v-btn
+            color="primary"
+            text
+            target="_blank"
+            @click="state.descriptionPopupShow = true"
+          >
+            {{ $t('pages.hotel-countrySlug-hotelSlug.description.seeAll') }}
+          </v-btn>
+          <v-bottom-sheet v-model="state.descriptionPopupShow" scrollable>
+            <v-card>
+              <v-card-title class="pa-0">
+                <v-app-bar dense>
+                  <v-app-bar-nav-icon>
+                    <v-btn icon @click="state.descriptionPopupShow = false">
+                      <v-icon>mdi-close</v-icon>
+                    </v-btn>
+                  </v-app-bar-nav-icon>
+                  <v-app-bar-title>{{ $t('pages.hotel-countrySlug-hotelSlug.description.title') }}</v-app-bar-title>
+                </v-app-bar>
+              </v-card-title>
+              <v-card-text v-html="roomAvailability.state.included.description.data" />
+            </v-card>
+          </v-bottom-sheet>
+        </div>
+      </v-card-text>
     </v-card>
     <v-main>
       <v-container></v-container>

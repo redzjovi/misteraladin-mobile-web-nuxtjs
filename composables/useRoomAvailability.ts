@@ -12,6 +12,9 @@ import useImage, {
   Image
 } from '~/composables/useImage'
 import {
+  ResponseBody as HotelIdDescriptionResponseBody
+} from '~/types/misteraladin/api/hotels/_id/descriptions'
+import {
   ResponseBody as HotelIdFacilityResponseBody
 } from '~/types/misteraladin/api/hotels/_id/facilities'
 import {
@@ -52,6 +55,10 @@ export default () => {
       room: ref(1)
     },
     included: {
+      description: {
+        data: ref(''),
+        loading: false
+      },
       groupFacilities: {
         data: ref<Map<string, Facility[]>>(new Map()),
         loading: false
@@ -84,6 +91,13 @@ export default () => {
   })
 
   const getIncluded = () => {
+    state.included.description.loading = true
+    $axios.get($config.hotelApiUrl + '/' + state.filter.hotelCode + '/descriptions').then(r => {
+      state.included.description.data = (r.data as HotelIdDescriptionResponseBody).data.description
+    }).finally(() => {
+      state.included.description.loading = false
+    })
+
     state.included.images.loading = true
     $axios.get($config.hotelApiUrl + '/' + state.filter.hotelCode + '/photos').then(r => {
       state.included.images.data = [];
